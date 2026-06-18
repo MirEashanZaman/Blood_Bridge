@@ -17,6 +17,26 @@ class HomeController extends BaseController {
     }
 
     public function index() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // If already logged in, redirect to respective dashboard
+        if (isset($_SESSION['user_id'])) {
+            $role = isset($_SESSION['role']) ? $_SESSION['role'] : '';
+            if ($role === 'admin') {
+                $this->redirect('admin/dashboard');
+            } elseif ($role === 'technician') {
+                $this->redirect('technician/dashboard');
+            } elseif ($role === 'donor') {
+                $this->redirect('donor/dashboard');
+            } elseif ($role === 'patient') {
+                $this->redirect('patient/dashboard');
+            } else {
+                $this->redirect('logout');
+            }
+        }
+
         // Fetch stats
         $total_donors = $this->userModel->getTotalDonorsCount();
         $available_units = $this->inventoryModel->getTotalAvailableCount();
