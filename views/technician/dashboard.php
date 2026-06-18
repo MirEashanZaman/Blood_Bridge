@@ -23,6 +23,47 @@
     </div>
 </div>
 
+<!-- Upcoming Donor Appointments Panel -->
+<div class="panel">
+    <div class="panel-header">
+        <span class="panel-title"><i class="fa-solid fa-calendar-check"></i> Upcoming Appointments / Intake Queue</span>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Intent ID</th>
+                    <th>Donor Name</th>
+                    <th>Blood Group</th>
+                    <th>Planned Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($pending_intents)): ?>
+                    <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No upcoming donation appointments scheduled.</td></tr>
+                <?php else: ?>
+                    <?php foreach ($pending_intents as $intent): ?>
+                        <tr>
+                            <td>#<?= $intent['intent_id'] ?></td>
+                            <td><strong><?= htmlspecialchars($intent['donor_name']) ?></strong></td>
+                            <td><span class="badge badge-normal" style="background-color: #fce4ec; color: #c2185b; font-weight: 700;"><?= htmlspecialchars($intent['blood_type']) ?></span></td>
+                            <td><?= htmlspecialchars($intent['intent_date']) ?></td>
+                            <td><span class="badge badge-pending">Scheduled</span></td>
+                            <td>
+                                <a href="index.php?route=technician/log-donation&intent_id=<?= $intent['intent_id'] ?>" class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; background-color: var(--success-color);">
+                                    <i class="fa-solid fa-hand-holding-medical"></i> Log Intake
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <div class="dashboard-grid">
     <div class="panel">
         <div class="panel-header">
