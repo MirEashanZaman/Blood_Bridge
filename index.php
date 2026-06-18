@@ -13,12 +13,18 @@ require_once 'controllers/AdminController.php';
 require_once 'controllers/TechnicianController.php';
 require_once 'controllers/DonorController.php';
 require_once 'controllers/PatientController.php';
+require_once 'controllers/HomeController.php';
 
 // Route resolution
-$route = isset($_GET['route']) ? $_GET['route'] : 'login';
+$route = isset($_GET['route']) ? $_GET['route'] : 'home';
 
 try {
     switch ($route) {
+        case 'home':
+            $controller = new HomeController($pdo);
+            $controller->index();
+            break;
+            
         case 'login':
             $controller = new AuthController($pdo);
             $controller->login();
