@@ -30,7 +30,7 @@
                     if ($d['role'] !== 'donor') continue;
                     
                     $eligible = true;
-                    if ($d['next_eligible_date'] && strtotime($d['next_eligible_date']) > time()) {
+                    if (!empty($d['next_eligible_date']) && strtotime($d['next_eligible_date']) > time()) {
                         $eligible = false;
                     }
                     
@@ -38,11 +38,11 @@
                 ?>
                     <option value="<?= $d['user_id'] ?>" 
                             <?= $selected ?>
-                            data-bloodtype="<?= htmlspecialchars($d['blood_type']) ?>" 
-                            data-eligible="<?= $eligible ? 'true' : 'false' ?>" 
-                            data-eligibledate="<?= htmlspecialchars($d['next_eligible_date']) ?>">
-                        <?= htmlspecialchars($d['name']) ?> (<?= htmlspecialchars($d['blood_type']) ?>) 
-                        <?= !$eligible ? ' - [Ineligible until ' . htmlspecialchars($d['next_eligible_date']) . ']' : '' ?>
+                             data-bloodtype="<?= htmlspecialchars($d['blood_type'] ?? '') ?>" 
+                             data-eligible="<?= $eligible ? 'true' : 'false' ?>" 
+                             data-eligibledate="<?= htmlspecialchars($d['next_eligible_date'] ?? '') ?>">
+                        <?= htmlspecialchars($d['name']) ?> (<?= htmlspecialchars($d['blood_type'] ?? '') ?>) 
+                        <?= !$eligible ? ' - [Ineligible until ' . htmlspecialchars($d['next_eligible_date'] ?? '') . ']' : '' ?>
                     </option>
                 <?php endforeach; ?>
             </select>
