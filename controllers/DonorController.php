@@ -31,13 +31,24 @@ class DonorController extends BaseController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_intent'])) {
             if (!$eligible) {
-                $msg = "You are currently ineligible to donate.";
+                $msg = "You are currently ineligible to donate. Please wait until your cooldown period ends.";
                 $msg_class = "msg-error";
             } else {
                 $intent_date = $_POST['intent_date'];
-                if (!empty($intent_date)) {
-                    $msg = "Thank you! Your intent to donate on " . htmlspecialchars($intent_date) . " has been logged.";
-                    $msg_class = "msg-success";
+                $screening_certify = isset($_POST['screening_certify']) ? (bool)$_POST['screening_certify'] : false;
+
+                if (!$screening_certify) {
+                    $msg = "Error: You must complete the medical pre-screening checklist and certify your eligibility.";
+                    $msg_class = "msg-error";
+                } elseif (!empty($intent_date)) {
+                    try {
+                        $this->donationModel->createIntent($donor_id, $intent_date);
+                        $msg = "Thank you! Your intent to donate on " . htmlspecialchars($intent_date) . " has been logged. Please visit our center on that day.";
+                        $msg_class = "msg-success";
+                    } catch (Exception $e) {
+                        $msg = "Error scheduling appointment: " . $e->getMessage();
+                        $msg_class = "msg-error";
+                    }
                 } else {
                     $msg = "Please select a date.";
                     $msg_class = "msg-error";
@@ -46,6 +57,7 @@ class DonorController extends BaseController {
         }
 
         $donations = $this->donationModel->getDonationHistory($donor_id);
+        $pending_intents = $this->donationModel->getPendingIntentsForDonor($donor_id);
 
         $data = [
             'msg' => $msg,
@@ -53,7 +65,8 @@ class DonorController extends BaseController {
             'eligible' => $eligible,
             'next_eligible' => $next_eligible,
             'days_left' => $days_left,
-            'donations' => $donations
+            'donations' => $donations,
+            'pending_intents' => $pending_intents
         ];
 
         $this->render('donor/dashboard', $data, 'Donor Portal');
