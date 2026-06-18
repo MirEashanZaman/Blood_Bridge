@@ -15,6 +15,13 @@
     </div>
     
     <form action="index.php?route=technician/log-donation" method="POST" id="donationForm">
+        <?php if (!empty($selected_intent)): ?>
+            <input type="hidden" name="intent_id" value="<?= (int)$selected_intent['intent_id'] ?>">
+            <div class="msg msg-success" style="font-size: 0.85rem; padding: 0.5rem 1rem; margin-bottom: 1rem;">
+                <i class="fa-solid fa-calendar-check"></i> Fulfilling appointment intent <strong>#<?= (int)$selected_intent['intent_id'] ?></strong>.
+            </div>
+        <?php endif; ?>
+
         <div class="form-group">
             <label for="donor_select">Donor <span style="color: var(--primary-color);">*</span></label>
             <select name="donor_id" id="donor_select" class="form-control" required>
@@ -26,8 +33,11 @@
                     if ($d['next_eligible_date'] && strtotime($d['next_eligible_date']) > time()) {
                         $eligible = false;
                     }
+                    
+                    $selected = (!empty($selected_intent) && (int)$selected_intent['donor_id'] === (int)$d['user_id']) ? 'selected' : '';
                 ?>
                     <option value="<?= $d['user_id'] ?>" 
+                            <?= $selected ?>
                             data-bloodtype="<?= htmlspecialchars($d['blood_type']) ?>" 
                             data-eligible="<?= $eligible ? 'true' : 'false' ?>" 
                             data-eligibledate="<?= htmlspecialchars($d['next_eligible_date']) ?>">
@@ -58,7 +68,7 @@
 
         <div class="form-group">
             <label for="donation_date">Donation Date <span style="color: var(--primary-color);">*</span></label>
-            <input type="date" name="donation_date" id="donation_date" class="form-control" required value="<?= date('Y-m-d') ?>">
+            <input type="date" name="donation_date" id="donation_date" class="form-control" required value="<?= !empty($selected_intent) ? htmlspecialchars($selected_intent['intent_date']) : date('Y-m-d') ?>">
         </div>
 
         <div class="form-group">
@@ -105,5 +115,10 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.removeAttribute('disabled');
         }
     });
+
+    // Auto-trigger on page load if pre-selected
+    if (donorSelect.value) {
+        donorSelect.dispatchEvent(new Event('change'));
+    }
 });
 </script>
