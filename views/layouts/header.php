@@ -12,7 +12,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="<?= isset($body_class) ? htmlspecialchars($body_class) : '' ?>">
 <?php
 if (isset($_SESSION['user_id'])) {
     include __DIR__ . '/sidebar.php';
