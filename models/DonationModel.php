@@ -57,5 +57,45 @@ class DonationModel {
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    public function createIntent($donorId, $intentDate) {
+        $stmt = $this->db->prepare("
+            INSERT INTO donation_intents (donor_id, intent_date, status) 
+            VALUES (?, ?, 'pending')
+        ");
+        return $stmt->execute([$donorId, $intentDate]);
+    }
+
+    public function getPendingIntentsForDonor($donorId) {
+        $stmt = $this->db->prepare("
+            SELECT * FROM donation_intents 
+            WHERE donor_id = ? AND status = 'pending' 
+            ORDER BY intent_date ASC
+        ");
+        $stmt->execute([$donorId]);
+        return $stmt->fetchAll();
+    }
+
+    public function getAllPendingIntents() {
+        $stmt = $this->db->query("
+            SELECT di.*, u.name as donor_name, u.blood_type 
+            FROM donation_intents di 
+            JOIN users u ON di.donor_id = u.user_id 
+            WHERE di.status = 'pending' 
+            ORDER BY di.intent_date ASC
+        ");
+        return $stmt->fetchAll();
+    }
+
+    public function getIntentById($intentId) {
+        $stmt = $this->db->prepare("SELECT * FROM donation_intents WHERE intent_id = ?");
+        $stmt->execute([$intentId]);
+        return $stmt->fetch();
+    }
+
+    public function updateIntentStatus($intentId, $status) {
+        $stmt = $this->db->prepare("UPDATE donation_intents SET status = ? WHERE intent_id = ?");
+        return $stmt->execute([$status, $intentId]);
+    }
 }
 ?>
