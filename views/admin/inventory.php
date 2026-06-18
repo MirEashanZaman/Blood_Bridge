@@ -65,43 +65,40 @@
 <?php else: ?>
     <div class="panel">
         <div class="panel-header">
-            <span class="panel-title"><i class="fa-solid fa-filter"></i> Filters & Search</span>
+            <span class="panel-title"><i class="fa-solid fa-filter"></i> Real-time Filters</span>
         </div>
-        <form action="index.php" method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
-            <input type="hidden" name="route" value="admin/inventory">
-            
+        <form id="liveFilterForm" data-target-table="inventoryTable" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;" onsubmit="return false;">
             <div class="form-group" style="margin-bottom: 0;">
                 <label for="filter_blood_type">Blood Type</label>
-                <select name="filter_blood_type" id="filter_blood_type" class="form-control">
+                <select id="filter_blood_type" class="form-control">
                     <option value="">All Blood Groups</option>
                     <?php foreach (['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as $bt): ?>
-                        <option value="<?= $bt ?>" <?= $filters['blood_type'] === $bt ? 'selected' : '' ?>><?= $bt ?></option>
+                        <option value="<?= $bt ?>"><?= $bt ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
 
             <div class="form-group" style="margin-bottom: 0;">
                 <label for="filter_status">Status</label>
-                <select name="filter_status" id="filter_status" class="form-control">
+                <select id="filter_status" class="form-control">
                     <option value="">All Statuses</option>
                     <?php foreach (['available', 'reserved', 'dispatched', 'expired'] as $st): ?>
-                        <option value="<?= $st ?>" <?= $filters['status'] === $st ? 'selected' : '' ?>><?= ucfirst($st) ?></option>
+                        <option value="<?= $st ?>"><?= ucfirst($st) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
 
             <div class="form-group" style="margin-bottom: 0;">
                 <label for="filter_expiry">Expiry Status</label>
-                <select name="filter_expiry" id="filter_expiry" class="form-control">
+                <select id="filter_expiry" class="form-control">
                     <option value="">All Units</option>
-                    <option value="expired" <?= $filters['expiry'] === 'expired' ? 'selected' : '' ?>>Expired Units</option>
-                    <option value="expiring_soon" <?= $filters['expiry'] === 'expiring_soon' ? 'selected' : '' ?>>Expiring in 7 Days</option>
+                    <option value="expired">Expired Units</option>
+                    <option value="expiring_soon">Expiring in 7 Days</option>
                 </select>
             </div>
 
-            <div style="display: flex; gap: 0.5rem;">
-                <button type="submit" class="btn btn-primary" style="flex: 1;"><i class="fa-solid fa-search"></i> Filter</button>
-                <a href="index.php?route=admin/inventory" class="btn btn-secondary" style="background-color: #bdc3c7; color: #333;"><i class="fa-solid fa-rotate-left"></i> Reset</a>
+            <div>
+                <button type="button" id="resetFiltersBtn" class="btn btn-secondary btn-block" style="background-color: #bdc3c7; color: #333;"><i class="fa-solid fa-rotate-left"></i> Reset Filters</button>
             </div>
         </form>
     </div>
@@ -132,7 +129,7 @@
                         <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No blood units found matching the criteria.</td></tr>
                     <?php else: ?>
                         <?php foreach ($inventory_units as $unit): ?>
-                            <tr>
+                            <tr data-blood-type="<?= htmlspecialchars($unit['blood_type']) ?>" data-status="<?= htmlspecialchars($unit['status']) ?>" data-expiry-date="<?= htmlspecialchars($unit['expiry_date']) ?>">
                                 <td>#<?= $unit['unit_id'] ?></td>
                                 <td><span class="badge badge-normal" style="background-color: #fce4ec; color: #c2185b; font-size: 0.85rem; font-weight: 700;"><?= htmlspecialchars($unit['blood_type']) ?></span></td>
                                 <td>
