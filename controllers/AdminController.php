@@ -82,18 +82,11 @@ class AdminController extends BaseController {
             }
         }
 
-        $filters = [
-            'blood_type' => isset($_GET['filter_blood_type']) ? $_GET['filter_blood_type'] : '',
-            'status' => isset($_GET['filter_status']) ? $_GET['filter_status'] : '',
-            'expiry' => isset($_GET['filter_expiry']) ? $_GET['filter_expiry'] : ''
-        ];
-
         $data = [
             'msg' => $msg,
             'msg_class' => $msg_class,
-            'inventory_units' => $this->inventoryModel->getAllUnits($filters),
-            'donations_dropdown' => $this->donationModel->getRecentDonations(50),
-            'filters' => $filters
+            'inventory_units' => $this->inventoryModel->getAllUnits(),
+            'donations_dropdown' => $this->donationModel->getRecentDonations(50)
         ];
 
         $this->render('admin/inventory', $data, 'Blood Inventory');
