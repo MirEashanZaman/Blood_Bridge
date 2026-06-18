@@ -2,6 +2,7 @@ CREATE DATABASE IF NOT EXISTS `bloodbridge_db` DEFAULT CHARACTER SET utf8mb4 COL
 USE `bloodbridge_db`;
 
 -- 1. users table
+DROP TABLE IF EXISTS `donation_intents`;
 DROP TABLE IF EXISTS `blood_requests`;
 DROP TABLE IF EXISTS `blood_inventory`;
 DROP TABLE IF EXISTS `donations`;
@@ -69,6 +70,16 @@ CREATE TABLE `alert_config` (
   `blood_type` ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-') NOT NULL PRIMARY KEY,
   `critical_threshold` INT NOT NULL DEFAULT 5,
   `warning_threshold` INT NOT NULL DEFAULT 10
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 6. donation_intents table
+CREATE TABLE `donation_intents` (
+  `intent_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `donor_id` INT NOT NULL,
+  `intent_date` DATE NOT NULL,
+  `status` ENUM('pending', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`donor_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Seed Data
