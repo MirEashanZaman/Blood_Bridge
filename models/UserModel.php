@@ -27,7 +27,11 @@ class UserModel {
     }
 
     public function getAllUsers() {
-        $stmt = $this->db->query("SELECT * FROM users ORDER BY role ASC, name ASC");
+        $stmt = $this->db->query("
+            SELECT u.*, (SELECT MAX(d.next_eligible_date) FROM donations d WHERE d.donor_id = u.user_id) as next_eligible_date 
+            FROM users u 
+            ORDER BY u.role ASC, u.name ASC
+        ");
         return $stmt->fetchAll();
     }
 
