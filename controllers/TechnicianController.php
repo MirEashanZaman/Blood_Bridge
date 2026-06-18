@@ -26,7 +26,8 @@ class TechnicianController extends BaseController {
             'available_units' => $this->inventoryModel->getTotalAvailableCount(),
             'pending_fulfillment' => count($this->requestModel->getApprovedRequests()),
             'recent_donations_count' => count($this->donationModel->getRecentDonations(30)),
-            'recent_donations' => $this->donationModel->getRecentDonations(5)
+            'recent_donations' => $this->donationModel->getRecentDonations(5),
+            'pending_intents' => $this->donationModel->getAllPendingIntents()
         ];
 
         $this->render('technician/dashboard', $data, 'Technician Workspace');
@@ -44,6 +45,7 @@ class TechnicianController extends BaseController {
             $units_ml = (int)$_POST['units_ml'];
             $donation_date = $_POST['donation_date'];
             $notes = trim($_POST['notes']);
+            $intent_id = !empty($_POST['intent_id']) ? (int)$_POST['intent_id'] : null;
 
             if (!empty($donor_id) && !empty($blood_type) && !empty($units_ml) && !empty($donation_date)) {
                 $next_eligible = $this->donationModel->getLatestDonationEligibility($donor_id);
@@ -62,6 +64,11 @@ class TechnicianController extends BaseController {
                         // 2. Add to Inventory
                         $this->inventoryModel->addUnit($blood_type, $new_donation_id, 'available', $donation_date, $_SESSION['user_id']);
 
+                        // 3. Mark intent completed if applicable
+                        if ($intent_id) {
+                            $this->donationModel->updateIntentStatus($intent_id, 'completed');
+                        }
+
                         $this->pdo->commit();
                         $msg = "Donation logged and blood unit auto-created in inventory successfully.";
                         $msg_class = "msg-success";
@@ -77,10 +84,18 @@ class TechnicianController extends BaseController {
             }
         }
 
+        // Fetch pre-selected intent if passed
+        $selected_intent = null;
+        if (isset($_GET['intent_id'])) {
+            $intent_id = (int)$_GET['intent_id'];
+            $selected_intent = $this->donationModel->getIntentById($intent_id);
+        }
+
         $data = [
             'msg' => $msg,
             'msg_class' => $msg_class,
-            'donors' => $this->userModel->getAllUsers() // View filters role = donor
+            'donors' => $this->userModel->getAllUsers(),
+            'selected_intent' => $selected_intent
         ];
 
         $this->render('technician/log_donation', $data, 'Log Donation');
